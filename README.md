@@ -1,4 +1,4 @@
-## Hi there 👋
+![th04e22's GitHub stats](https://github-readme-stats.vercel.app/api?username=th04e22)
 
 <!--
 **TH04e22/th04e22** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
