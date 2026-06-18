@@ -1,0 +1,167 @@
+<svg width="100%" height="220" viewBox="0 0 600 220" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Master Glitch Filter: Horizontal block displacements combined with synchronized RGB split -->
+    <filter id="glitch-master" x="-20%" y="-20%" width="140%" height="140%">
+      <!-- 1. Horizontal slice displacement noise -->
+      <feTurbulence type="fractalNoise" baseFrequency="0 0.15" numOctaves="1" result="block_noise">
+        <animate attributeName="baseFrequency"
+                 values="0 0.15; 0 0.7; 0 0.15; 0 0.05; 0 0.9; 0 0.15"
+                 keyTimes="0; 0.06; 0.09; 0.55; 0.58; 1"
+                 dur="3.2s" repeatCount="indefinite" />
+      </feTurbulence>
+      
+      <!-- Extract X displacement only -->
+      <feColorMatrix type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" in="block_noise" result="block_noise_x"/>
+      
+      <!-- Displace horizontally -->
+      <feDisplacementMap in="SourceGraphic" in2="block_noise_x" scale="0" xChannelSelector="R" yChannelSelector="R" result="block_displaced">
+        <animate attributeName="scale"
+                 values="0; 25; 0; 0; 35; 2; 0"
+                 keyTimes="0; 0.06; 0.09; 0.55; 0.58; 0.61; 1"
+                 dur="3.2s" repeatCount="indefinite" />
+      </feDisplacementMap>
+
+      <!-- 2. RGB Split on top of displacement -->
+      <feColorMatrix in="block_displaced" result="red" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" />
+      <feOffset dx="-1" dy="0" in="red" result="red_shift">
+        <animate attributeName="dx" 
+                 values="-1; -4; -1; -1; -6; -1; -1" 
+                 keyTimes="0; 0.06; 0.09; 0.55; 0.58; 0.61; 1"
+                 dur="3.2s" repeatCount="indefinite" />
+      </feOffset>
+      
+      <feColorMatrix in="block_displaced" result="cyan" type="matrix" values="0 0 0 0 0  0 1 1 0 0  0 1 1 0 0  0 0 0 1 0" />
+      <feOffset dx="1" dy="0" in="cyan" result="cyan_shift">
+        <animate attributeName="dx" 
+                 values="1; 5; 1; 1; 7; 1; 1" 
+                 keyTimes="0; 0.06; 0.09; 0.55; 0.58; 0.61; 1"
+                 dur="3.2s" repeatCount="indefinite" />
+      </feOffset>
+      
+      <feBlend mode="screen" in="red_shift" in2="cyan_shift" result="rgb_blend" />
+    </filter>
+
+    <!-- Oscilloscope Glow: Shimmering analog beam glow -->
+    <filter id="oscilloscope-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.95 0.95" numOctaves="3" result="noise">
+        <animate attributeName="baseFrequency"
+                 values="0.95 0.95; 0.90 0.98; 0.97 0.92; 0.95 0.95"
+                 dur="0.12s" repeatCount="indefinite" />
+      </feTurbulence>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G" result="displacedPath">
+        <animate attributeName="scale"
+                 values="4; 7; 3; 4"
+                 dur="0.18s" repeatCount="indefinite" />
+      </feDisplacementMap>
+      
+      <feGaussianBlur in="displacedPath" stdDeviation="4.5" result="broadGlow" /> 
+      <feGaussianBlur in="displacedPath" stdDeviation="1.5" result="sharpGlow" /> 
+      <feMerge>
+        <feMergeNode in="broadGlow" /> 
+        <feMergeNode in="sharpGlow" /> 
+        <feMergeNode in="displacedPath" /> 
+      </feMerge>
+    </filter>
+
+    <linearGradient id="parulaGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#001080" stop-opacity="0.2" />
+      <stop offset="20%" stop-color="#00b4d8" />
+      <stop offset="50%" stop-color="#00f5d4" /> 
+      <stop offset="80%" stop-color="#ccff00" />
+      <stop offset="100%" stop-color="#ffcc00" />
+    </linearGradient>
+
+    <linearGradient id="mirrorGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#0020b8" stop-opacity="0.1" />
+      <stop offset="50%" stop-color="#0077b6" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#00f5d4" stop-opacity="0.4" />
+    </linearGradient>
+
+    <pattern id="scanlines" patternUnits="userSpaceOnUse" width="100" height="3" x="0" y="0">
+      <line x1="0" y1="0" x2="100" y2="0" stroke="rgba(255, 255, 255, 0.07)" stroke-width="1.2"/>
+    </pattern>
+  </defs>
+
+  <!-- Static Background Frame -->
+  <rect width="600" height="220" rx="8" fill="#070a13" stroke="#1f293d" stroke-width="1.5" />
+  
+  <!-- Overlay Scanlines on entire area -->
+  <rect width="600" height="220" rx="8" fill="url(#scanlines)" pointer-events="none" />
+
+  <!-- Everything inside this group glitches together -->
+  <g filter="url(#glitch-master)">
+    
+    <!-- Coordinate Grid Lines -->
+    <g stroke="#121a2c" stroke-width="1">
+      <line x1="0" y1="40" x2="600" y2="40" />
+      <line x1="0" y1="80" x2="600" y2="80" />
+      <line x1="0" y1="110" x2="600" y2="110" stroke="#1c2b44" stroke-width="2" stroke-dasharray="6 4" /> 
+      <line x1="0" y1="140" x2="600" y2="140" />
+      <line x1="0" y1="180" x2="600" y2="180" />
+      <line x1="150" y1="0" x2="150" y2="220" />
+      <line x1="300" y1="0" x2="300" y2="220" />
+      <line x1="450" y1="0" x2="450" y2="220" />
+    </g>
+
+    <!-- Labelling and Scales -->
+    <g fill="#5a6a85" font-family="monospace" font-size="9" letter-spacing="1">
+      <text x="12" y="22" font-weight="bold">FREQUENCY (Hz)</text>
+      <text x="565" y="106">0</text>
+      <text x="12" y="35">+200</text>
+      <text x="12" y="185">-200</text>
+      <text x="535" y="210" font-weight="bold">TIME (s)</text>
+    </g>
+
+    <!-- Active Spectrogram Signal Traces -->
+    <g filter="url(#oscilloscope-glow)" fill="none" stroke-linecap="round">
+      
+      <!-- Mirrored Decaying Wave (Background Shadow Trace) -->
+      <path d="M 0,110 Q 35,160 75,110 T 150,110 T 225,110 T 300,110 T 375,110 T 450,110 T 525,110 T 600,110" 
+            stroke="url(#mirrorGrad)" 
+            stroke-width="2.5" 
+            stroke-dasharray="2 4 1 5" 
+            opacity="0.25" />
+
+      <!-- Primary Doppler Shift Trace -->
+      <path d="M 0,110 Q 35,60 75,110 T 150,110 T 225,110 T 300,110 T 375,110 T 450,110 T 525,110 T 600,110" 
+            stroke="url(#parulaGrad)" 
+            stroke-width="8.5" 
+            stroke-dasharray="12 2 5 4 1 3 8 2">
+        <animate attributeName="stroke-dashoffset" 
+                 from="0" 
+                 to="100" 
+                 dur="0.2s" 
+                 repeatCount="indefinite" />
+      </path>
+
+      <!-- Center Tracking Line (Thin Sharp Overlay) -->
+      <path d="M 0,110 Q 35,60 75,110 T 150,110 T 225,110 T 300,110 T 375,110 T 450,110 T 525,110 T 600,110" 
+            stroke="#ffffff" 
+            stroke-width="1.2" 
+            opacity="0.85" 
+            stroke-dasharray="6 8">
+        <animate attributeName="stroke-dashoffset" 
+                 from="0" 
+                 to="-100" 
+                 dur="0.3s" 
+                 repeatCount="indefinite" />
+      </path>
+            
+    </g>
+
+    <!-- Blinking Glitch Bar Overlays -->
+    <g fill="none" opacity="0.8">
+      <line x1="0" y1="60" x2="600" y2="60" stroke="#00f5d4" stroke-width="1" opacity="0">
+        <animate attributeName="opacity" values="0; 0.8; 0; 0; 0.9; 0; 0" keyTimes="0; 0.05; 0.07; 0.55; 0.57; 0.6; 1" dur="2.8s" repeatCount="indefinite" />
+        <animate attributeName="y1" values="60; 60; 130; 130; 175; 175; 60" keyTimes="0; 0.05; 0.07; 0.55; 0.57; 0.6; 1" dur="2.8s" repeatCount="indefinite" />
+        <animate attributeName="y2" values="60; 60; 130; 130; 175; 175; 60" keyTimes="0; 0.05; 0.07; 0.55; 0.57; 0.6; 1" dur="2.8s" repeatCount="indefinite" />
+      </line>
+      <line x1="0" y1="150" x2="600" y2="150" stroke="#ff007f" stroke-width="1.5" opacity="0">
+        <animate attributeName="opacity" values="0; 0; 0.9; 0; 0; 0.75; 0" keyTimes="0; 0.04; 0.06; 0.55; 0.58; 0.61; 1" dur="2.8s" repeatCount="indefinite" />
+        <animate attributeName="y1" values="150; 90; 90; 45; 45; 140; 150" keyTimes="0; 0.04; 0.06; 0.55; 0.58; 0.61; 1" dur="2.8s" repeatCount="indefinite" />
+        <animate attributeName="y2" values="150; 90; 90; 45; 45; 140; 150" keyTimes="0; 0.04; 0.06; 0.55; 0.58; 0.61; 1" dur="2.8s" repeatCount="indefinite" />
+      </line>
+    </g>
+
+  </g>
+</svg>
